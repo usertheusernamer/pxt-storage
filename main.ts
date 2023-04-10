@@ -268,7 +268,7 @@ namespace storage {
     }
 
     //% block="get|directories|of|path $path"
-    //% blockId="extension_path"
+    //% blockId="directories_path"
     //% group='Path'
     //% path.defl="folder/file.txt"
     //% weight=1
