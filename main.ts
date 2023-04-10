@@ -63,15 +63,18 @@ enum Include {
     without
 }
 
-interface String {
-    endsWith(searchString: string, endPosition?: number): boolean;
-};
+function _endsWith(str: string, searchValue: string, position?: number): boolean {
+    if (position === undefined || position > str.length) {
+        position = str.length;
+    }
+    return str.substr(position - searchValue.length, searchValue.length) === searchValue;
+}
 
 function _combinePaths(paths: string[]): string {
     let result = "";
 
     paths.forEach((path, index) => {
-        if (path.endsWith("/") || path.endsWith("\\")) {
+        if (_endsWith(path, "/") || _endsWith(path, "\\")) {
             path = path.slice(0, -1);
         }
 
@@ -273,7 +276,7 @@ namespace storage {
     //% path.defl="folder/file.txt"
     //% weight=1
     export function directoriesPath(path: string): string {
-        path = combinePaths([path]);
+        path = _combinePaths([path]);
 
         const names = path.split("/");
         names.pop();
