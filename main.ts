@@ -14,12 +14,15 @@ function _filePath(path: string): string {
     return currentPath.files[end] || null;
 }
 
-type DirectoryType = {
-    files: { [filename: string]: string },
-    directories: { [directoryName: string]: DirectoryType }
+type Files = { [fileName: string]: string }
+type Directories = { [directoryName: string]: Directory }
+
+type Directory = {
+    files: Files,
+    directories: Directories
 }
 
-function _directoryPath(path: string): DirectoryType {
+function _directoryPath(path: string): Directory {
     const storage = JSON.parse(settings.readString(rootName));
 
     if (path == "") {
@@ -41,6 +44,10 @@ enum Include {
     with,
     without
 }
+
+interface String {
+    endsWith(searchString: string, endPosition?: number): boolean;
+};
 
 function _combinePaths(paths: string[]): string {
     let result = "";
@@ -78,7 +85,7 @@ namespace storage {
     //% weight=15
     export function setup(): void {
         if (!settings.exists(rootName)) {
-            settings.writeString(JSON.stringify({
+            settings.writeString(rootName, JSON.stringify({
                 "files": {},
                 "directories": {}
             }));
@@ -174,7 +181,7 @@ namespace storage {
     //% group='Directories'
     //% path.defl="folder"
     //% weight=5
-    export function listFiles(path: string): string[] {
+    export function listFiles(path: string): Files {
         return _directoryPath(path).files;
     }
 
@@ -183,7 +190,7 @@ namespace storage {
     //% group='Directories'
     //% path.defl="folder"
     //% weight=4
-    export function listDirectories(path: string): string[] {
+    export function listDirectories(path: string): Directories {
         return _directoryPath(path).directories;
     }
 
