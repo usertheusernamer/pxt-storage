@@ -1,3 +1,21 @@
+/*
+JSON Data Structure:
+
+{
+    "files": {
+        "file.txt": "Hello World!"
+    },
+    "directories": {
+        "folder": {
+            "files": {
+                "file.txt": "Hello World!"
+            },
+            "directories": {}
+        }
+    }
+}
+*/
+
 let rootName = "storage_file_system";
 
 function _filePath(path: string): string {
@@ -67,7 +85,7 @@ function _combinePaths(paths: string[]): string {
     return result;
 }
 
-//% color="#C47713" icon="\uf1ec" weight=20 block="Storage"
+//% color="#C47713" icon="\uf07c" weight=20 block="Storage"
 //% groups=['Configuration', 'Files', 'Directories', 'Path']
 namespace storage {
     //% block="set|root|name|to $name"
@@ -99,7 +117,15 @@ namespace storage {
     //% content.defl="Hello World!"
     //% weight=14
     export function writeFile(path: string, content: string): void {
+        let directory = _directoryPath(path);
+        const file = namePath(path, Include.with);
 
+        directory.files[file] = content;
+
+        let storage = JSON.parse(settings.readString(rootName));
+        // Finish code
+
+        settings.writeString(rootName, JSON.stringify(storage));
     }
 
     //% block="read|file|at|path $path"
@@ -118,7 +144,11 @@ namespace storage {
     //% name.defl="file2.txt"
     //% weight=12
     export function renameFile(path: string, name: string): void {
+        const content = readFile(path);
+        deleteFile(path);
 
+        const renamePath = _combinePaths([directoriesPath(path), name]);
+        writeFile(renamePath, content);
     }
 
     //% block="file|at|path $path exists?"
@@ -127,7 +157,11 @@ namespace storage {
     //% path.defl="file.txt"
     //% weight=11
     export function fileExists(path: string): boolean {
-        return _filePath(path) != null;
+        try {
+            return _filePath(path) != null;
+        } catch {
+            return false
+        }
     }
 
     //% block="delete|file|at|path $path"
@@ -164,7 +198,11 @@ namespace storage {
     //% path.defl="folder"
     //% weight=7
     export function directoryExists(path: string): boolean {
-        return _directoryPath(path) != null;
+        try {
+            return _directoryPath(path) != null;
+        } catch {
+            return false
+        }
     }
 
     //% block="delete|directory|at|path $path"
@@ -229,10 +267,25 @@ namespace storage {
         return extensions[extensions.length - 1];
     }
 
+    //% block="get|directories|of|path $path"
+    //% blockId="extension_path"
+    //% group='Path'
+    //% path.defl="folder/file.txt"
+    //% weight=1
+    export function directoriesPath(path: string): string {
+        path = combinePaths([path]);
+
+        const names = path.split("/");
+        names.pop();
+
+        const directoriesPath = names.join("/");
+        return directoriesPath;
+    }
+
     //% block="combine|paths $paths"
     //% blockId="combine_paths"
     //% group='Path'
-    //% weight=1
+    //% weight=0
     export function combinePaths(paths: string[]): string {
         return _combinePaths(paths);
     }
